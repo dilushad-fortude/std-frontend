@@ -1,0 +1,21 @@
+query getOneStudent($id: BigInt!) {
+  studentById(id:$id){
+    id, name, dob, email
+  }
+}
+
+mutation removeStudent($id: BigInt!) {
+  deleteStudentById(input:{id:$id}){
+    student{
+      id
+    }
+  }
+}
+
+query GetAllStudentsQuery {
+  allStudents {
+    nodes {
+      id,name,dob,email
+    }
+  }
+}
