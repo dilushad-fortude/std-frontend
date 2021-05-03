@@ -1,8 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { GetAllStudentsQueryGQL, RemoveStudentGQL } from '../services/studentGraphql.service';
+import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { GetAllStudentsQueryGQL, RemoveStudentGQL, UpdateStudentGQL } from '../services/studentGraphql.service';
 import { map } from 'rxjs/operators';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { StudentService } from '../student.service';
+import { GridComponent, GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
+
+const createFormGroup = dataItem =>
+  new FormGroup({
+    name: new FormControl(dataItem.name),
+    dob: new FormControl(dataItem.dob),
+    email: new FormControl(dataItem.email),
+    id: new FormControl(dataItem.id),
+  });
+
+const matches = (el, selector) =>
+  (el.matches || el.msMatchesSelector).call(el, selector);
+
 
 @Component({
   selector: 'app-students-list',
@@ -10,61 +23,127 @@ import { StudentService } from '../student.service';
   styleUrls: ['./students-list.component.css']
 })
 export class StudentsListComponent implements OnInit {
+
+  @ViewChild(GridComponent)
+  private grid: GridComponent;
+
+  public view: any[];
+
   public formGroup: FormGroup;
+
   private editedRowIndex: number;
+  private docClickSubscription: any;
+  private isNew: boolean;
 
   constructor(
-    private readonly studentService: StudentService,
-    private readonly studentGQLService: GetAllStudentsQueryGQL
+    private renderer: Renderer2,
+    private readonly studentGQLService: GetAllStudentsQueryGQL,
+    private readonly updateStudentGQLService: UpdateStudentGQL,
+    private readonly deleteStudentGQLService: RemoveStudentGQL,
   ) { }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
+    this.loadStudentList();
+
+    this.docClickSubscription = this.renderer.listen(
+      "document",
+      "click",
+      this.onDocumentClick.bind(this)
+    );
   }
 
-  studentsList$ = this.studentService.getAllStudents();
-
-  public editHandler({ sender, rowIndex, dataItem }) {
-    this.closeEditor(sender);
-
-    this.formGroup = new FormGroup({
-      'ProductID': new FormControl(dataItem.ProductID),
-      'ProductName': new FormControl(dataItem.ProductName, Validators.required),
-      'UnitPrice': new FormControl(dataItem.UnitPrice),
-      'UnitsInStock': new FormControl(
-        dataItem.UnitsInStock,
-        Validators.compose([Validators.required, Validators.pattern('^[0-9]{1,3}')])),
-      'Discontinued': new FormControl(dataItem.Discontinued)
+  private loadStudentList() {
+    this.studentGQLService.fetch().pipe(map(res => res.data.findAllStudents)).subscribe(students => {
+      this.view = students;
     });
+  }
 
+  public ngOnDestroy(): void {
+    this.docClickSubscription();
+  }
+
+  public deleteStudent(id) {
+    this.deleteStudentGQLService.mutate({id: ""+id}).subscribe(data => {
+      this.loadStudentList();
+    })
+  }
+
+  public addHandler(event): void {
+    this.closeEditor();
+
+    this.formGroup = createFormGroup({
+      name: "",
+      dob: "",
+      email: "",
+      id: ""
+    });
+    this.isNew = true;
+
+    this.grid.addRow(this.formGroup);
+  }
+
+  public saveRow() {
+    if (this.formGroup && this.formGroup.valid) {
+      this.saveCurrent();
+    }
+  }
+
+  private saveCurrent(): void {
+    if (this.formGroup) {
+      if (!this.isNew) {
+        console.log(this.formGroup.value);
+        this.updateStudentGQLService.mutate({
+          name: this.formGroup.value['name'],
+          dob: this.formGroup.value['dob'],
+          email: this.formGroup.value['email'],
+          id: "" + this.formGroup.value['id']
+        }).subscribe(data => {
+          this.loadStudentList();
+        });
+      }
+      this.closeEditor();
+    }
+  }
+
+  public cellClickHandler({ isEdited, dataItem, rowIndex }): void {
+    if (isEdited || (this.formGroup && !this.formGroup.valid)) {
+      return;
+    }
+
+    if (this.isNew) {
+      rowIndex += 1;
+    }
+
+    this.saveCurrent();
+
+    this.formGroup = createFormGroup(dataItem);
     this.editedRowIndex = rowIndex;
 
-    sender.editRow(rowIndex, this.formGroup);
+    this.grid.editRow(rowIndex, this.formGroup);
   }
 
-  public cancelHandler({ sender, rowIndex }) {
-    // this.removeStudentService.mutate({ id: 8 });
-    this.closeEditor(sender, rowIndex);
+  public cancelHandler(): void {
+    this.closeEditor();
   }
 
-  public saveHandler({ sender, rowIndex, formGroup, isNew }) {
+  private closeEditor(): void {
+    this.grid.closeRow(this.editedRowIndex);
 
-    // this.editService.save(product, isNew);
-
-    sender.closeRow(rowIndex);
-  }
-
-  public removeHandler({ dataItem }) {
-    // this.removeStudentService.mutate({ id: dataItem.id })
-    //   .subscribe(res => {
-    //     console.log(res);
-    //     // this.studentsList$ = this.studentListService.fetch().pipe(map(res => res.data.allStudents.nodes));
-    //   });
-  }
-
-  private closeEditor(grid, rowIndex = this.editedRowIndex) {
-    grid.closeRow(rowIndex);
+    this.isNew = false;
     this.editedRowIndex = undefined;
     this.formGroup = undefined;
   }
 
+  private onDocumentClick(e: any): void {
+    if (
+      this.formGroup &&
+      this.formGroup.valid &&
+      !matches(
+        e.target,
+        "#productsGrid tbody *, #productsGrid .k-grid-toolbar .k-button"
+      )
+    ) {
+      this.saveCurrent();
+    }
+  }
 }

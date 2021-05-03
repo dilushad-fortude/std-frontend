@@ -17,6 +17,6 @@ export class StudentComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  student$ = this.getOneStudent.fetch({id:8}).pipe(map((res) => res.data.studentById));
+  student$ = this.getOneStudent.fetch({id:"8"}).pipe(map((res) => res.data.findStudent));
 
 }

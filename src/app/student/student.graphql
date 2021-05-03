@@ -1,21 +1,37 @@
-query getOneStudent($id: BigInt!) {
-  studentById(id:$id){
+type Student {
+  id: Int!
+  name: String!
+  dob: String!
+  email: String!
+}
+
+query getOneStudent($id: String!) {
+  findStudent(id: $id) {
     id, name, dob, email
   }
 }
 
-mutation removeStudent($id: BigInt!) {
-  deleteStudentById(input:{id:$id}){
-    student{
-      id
-    }
+query GetAllStudentsQuery {
+  findAllStudents{
+    id,name,email,dob
   }
 }
 
-query GetAllStudentsQuery {
-  allStudents {
-    nodes {
-      id,name,dob,email
-    }
+mutation removeStudent($id: String!) {
+ deleteStudent(id:$id){
+    id
+  }
+}
+
+mutation updateStudent($id: String!, $name: String!, $email: String!, $dob: String!){
+  updateStudent(
+    input:{
+      email: $email,
+      dob: $dob,
+      name: $name
+    }, 
+    id:$id)
+  {
+    id
   }
 }

@@ -10,7 +10,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { StudentsListComponent } from './students-list/students-list.component';
 import { UploadModule } from '@progress/kendo-angular-upload';
 import { UploadComponent } from './upload/upload.component';
-
+import {MatCardModule} from '@angular/material/card';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatIconModule} from '@angular/material/icon';
+import {MatBadgeModule} from '@angular/material/badge';
 
 @NgModule({
   declarations: [
@@ -26,6 +29,10 @@ import { UploadComponent } from './upload/upload.component';
     GraphQLModule,
     HttpClientModule,
     UploadModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatBadgeModule
   ],
   providers: [],
   bootstrap: [AppComponent]

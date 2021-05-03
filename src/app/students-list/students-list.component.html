@@ -1,31 +1,37 @@
-<ng-cotainer *ngIf="studentsList$ | async as studentsList">
+<div class="row">
 
-    <kendo-grid 
-        [data]="studentsList" 
-        [height]="410"
-        [pageable]="true" [sortable]="true"
-        (edit)="editHandler($event)" (cancel)="cancelHandler($event)"
-        (save)="saveHandler($event)" (remove)="removeHandler($event)"
-        >
-        <kendo-grid-column field="name" title="ID" width="20">
-        </kendo-grid-column>
-        <kendo-grid-column field="email" title="Email" width="20">
-        </kendo-grid-column>
-        <kendo-grid-column field="dob" title="Date of Birth" width="20">
-            <ng-template kendoGridCellTemplate let-dataItem>
-                {{ dataItem.dob | date:'dd.MM.yyyy' }}
-            </ng-template>
-        </kendo-grid-column>
-        <kendo-grid-command-column title="command" width="220">
-            <ng-template kendoGridCellTemplate let-isNew="isNew">
-                <button kendoGridEditCommand [primary]="true">Edit</button>
-                <button kendoGridRemoveCommand>Remove</button>
-                <button kendoGridSaveCommand [disabled]="formGroup?.invalid">{{ isNew ? 'Add' : 'Update' }}</button>
-                <button kendoGridCancelCommand>{{ isNew ? 'Discard changes' : 'Cancel' }}</button>
-            </ng-template>
-        </kendo-grid-command-column>
-    </kendo-grid>
+    <mat-card>
+        <mat-card-title>
+            <h3>Student Details</h3>
+        </mat-card-title>
+        <kendo-grid [data]="view" id="productsGrid" (cellClick)="cellClickHandler($event)" (add)="addHandler($event)">
+            
+            <kendo-grid-column field="id" title="ID" editor="string" width="50"></kendo-grid-column>
+            <kendo-grid-column field="name" title="Name" editor="string" width="150"></kendo-grid-column>
+            <kendo-grid-column field="dob" title="DOB" editor="string" width="150">
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    {{dataItem.dob | date: 'yyyy/MM/dd'}}
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="email" title="Email" editor="string" width="150"></kendo-grid-column>
 
-    <button (click)="test()">delete</button>
+            <kendo-grid-column title="Actions" width="100">
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    <span class="btn-align-left flex-child-none">
+                        <button *ngIf="formGroup" class="k-button" [primary]="true" class="rounded-btn"
+                            [disabled]="!formGroup.valid" (click)="saveRow()">
+                            <span class="k-icon k-i-save"></span>
+                        </button>
+                        <button *ngIf="formGroup" class="k-button k-primary" (click)="cancelHandler()" [primary]="true"
+                            class="rounded-btn">
+                            <span class="k-icon k-i-cancel"></span>
+                        </button>
+                        <button kendoButton (click)="deleteStudent(dataItem.id)" [primary]="true" class="rounded-btn"
+                            title="Delete"><span class="k-icon k-i-delete"></span></button>
+                    </span>
+                </ng-template>
+            </kendo-grid-column>
+        </kendo-grid>
+    </mat-card>
 
-</ng-cotainer>
+</div>
