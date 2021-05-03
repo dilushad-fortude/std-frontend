@@ -1,1 +1,31 @@
-<p>students-list works!</p>
+<ng-cotainer *ngIf="studentsList$ | async as studentsList">
+
+    <kendo-grid 
+        [data]="studentsList" 
+        [height]="410"
+        [pageable]="true" [sortable]="true"
+        (edit)="editHandler($event)" (cancel)="cancelHandler($event)"
+        (save)="saveHandler($event)" (remove)="removeHandler($event)"
+        >
+        <kendo-grid-column field="name" title="ID" width="20">
+        </kendo-grid-column>
+        <kendo-grid-column field="email" title="Email" width="20">
+        </kendo-grid-column>
+        <kendo-grid-column field="dob" title="Date of Birth" width="20">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                {{ dataItem.dob | date:'dd.MM.yyyy' }}
+            </ng-template>
+        </kendo-grid-column>
+        <kendo-grid-command-column title="command" width="220">
+            <ng-template kendoGridCellTemplate let-isNew="isNew">
+                <button kendoGridEditCommand [primary]="true">Edit</button>
+                <button kendoGridRemoveCommand>Remove</button>
+                <button kendoGridSaveCommand [disabled]="formGroup?.invalid">{{ isNew ? 'Add' : 'Update' }}</button>
+                <button kendoGridCancelCommand>{{ isNew ? 'Discard changes' : 'Cancel' }}</button>
+            </ng-template>
+        </kendo-grid-command-column>
+    </kendo-grid>
+
+    <button (click)="test()">delete</button>
+
+</ng-cotainer>

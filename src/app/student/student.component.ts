@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { GetOneStudentGQL } from '../services/studentGraphql.service';
+import { GetOneStudentGQL, RemoveStudentGQL } from '../services/studentGraphql.service';
 
 @Component({
   selector: 'app-student',
@@ -9,7 +9,10 @@ import { GetOneStudentGQL } from '../services/studentGraphql.service';
 })
 export class StudentComponent implements OnInit {
 
-  constructor(private readonly getOneStudent: GetOneStudentGQL) { }
+  constructor(
+    private readonly getOneStudent: GetOneStudentGQL,
+    private readonly removeStudentService: RemoveStudentGQL
+    ) { }
 
   ngOnInit(): void {
   }
