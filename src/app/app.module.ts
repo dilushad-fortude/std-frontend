@@ -8,21 +8,24 @@ import { StudentComponent } from './student/student.component';
 import { GraphQLModule } from './graphql.module';
 import { HttpClientModule } from '@angular/common/http';
 import { StudentsListComponent } from './students-list/students-list.component';
-
+import { UploadModule } from '@progress/kendo-angular-upload';
+import { UploadComponent } from './upload/upload.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     StudentComponent,
-    StudentsListComponent
+    StudentsListComponent,
+    UploadComponent
   ],
   imports: [
     BrowserModule,
     GridModule,
     BrowserAnimationsModule,
     GraphQLModule,
-    HttpClientModule
+    HttpClientModule,
+    UploadModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
