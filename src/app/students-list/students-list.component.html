@@ -4,13 +4,25 @@
         <mat-card-title>
             <h3>Student Details</h3>
         </mat-card-title>
-        <kendo-grid [data]="view" id="productsGrid" (cellClick)="cellClickHandler($event)" (add)="addHandler($event)">
+        <kendo-grid 
+            [data]="view" id="productsGrid" 
+            (cellClick)="cellClickHandler($event)" (add)="addHandler($event)"
+            [pageable]="true"
+            [pageSize]="pageSize"
+            [skip]="skip"
+            (pageChange)="pageChange($event)"
+        >
             
-            <kendo-grid-column field="id" title="ID" editor="string" width="50"></kendo-grid-column>
+            <kendo-grid-column field="id" title="ID" width="50" editable="false"></kendo-grid-column>
             <kendo-grid-column field="name" title="Name" editor="string" width="150"></kendo-grid-column>
-            <kendo-grid-column field="dob" title="DOB" editor="string" width="150">
+            <kendo-grid-column field="dob" title="DOB" editor="string" width="150" editable="false">
                 <ng-template kendoGridCellTemplate let-dataItem>
                     {{dataItem.dob | date: 'yyyy/MM/dd'}}
+                </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="age" title="Age" editor="string" width="100">
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    {{dataItem.age}} Yrs
                 </ng-template>
             </kendo-grid-column>
             <kendo-grid-column field="email" title="Email" editor="string" width="150"></kendo-grid-column>

@@ -10,7 +10,7 @@ const createFormGroup = dataItem =>
     name: new FormControl(dataItem.name),
     dob: new FormControl(dataItem.dob),
     email: new FormControl(dataItem.email),
-    id: new FormControl(dataItem.id),
+    id: new FormControl(dataItem.id)
   });
 
 const matches = (el, selector) =>
@@ -27,13 +27,15 @@ export class StudentsListComponent implements OnInit {
   @ViewChild(GridComponent)
   private grid: GridComponent;
 
-  public view: any[];
+  public view: GridDataResult;
 
   public formGroup: FormGroup;
 
   private editedRowIndex: number;
   private docClickSubscription: any;
   private isNew: boolean;
+  public pageSize = 10;
+  public skip = 0;
 
   constructor(
     private renderer: Renderer2,
@@ -52,10 +54,32 @@ export class StudentsListComponent implements OnInit {
     );
   }
 
-  private loadStudentList() {
-    this.studentGQLService.fetch().pipe(map(res => res.data.findAllStudents)).subscribe(students => {
-      this.view = students;
+  public loadStudentList() {
+    this.studentGQLService.fetch().pipe(map(res => this.mapStudent(res.data.findAllStudents))).subscribe(students => {
+      // this.view = students;
+      console.log("stds", students);
+      this.view = {
+        data: students.slice(this.skip, this.skip + this.pageSize),
+        total: students.length
+      }
     });
+  }
+
+  public pageChange(event: PageChangeEvent): void {
+    this.skip = event.skip;
+    this.loadStudentList();
+  }
+
+  private mapStudent(students) {
+    let stdList = [];
+    for (let x = 0; x < students.length; x++) {
+      var ageDifMs = Date.now() - new Date(students[x]['dob']).getTime();
+      var ageDate = new Date(ageDifMs);
+      var age = Math.abs(ageDate.getUTCFullYear() - 1970);
+      students[x]['age'] = age;
+      stdList.push(students[x]);
+    }
+    return stdList;
   }
 
   public ngOnDestroy(): void {
@@ -63,7 +87,7 @@ export class StudentsListComponent implements OnInit {
   }
 
   public deleteStudent(id) {
-    this.deleteStudentGQLService.mutate({id: ""+id}).subscribe(data => {
+    this.deleteStudentGQLService.mutate({ id: "" + id }).subscribe(data => {
       this.loadStudentList();
     })
   }
@@ -75,7 +99,6 @@ export class StudentsListComponent implements OnInit {
       name: "",
       dob: "",
       email: "",
-      id: ""
     });
     this.isNew = true;
 

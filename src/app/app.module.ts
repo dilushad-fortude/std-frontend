@@ -14,13 +14,17 @@ import {MatCardModule} from '@angular/material/card';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatBadgeModule} from '@angular/material/badge';
+import {MatMenuModule} from '@angular/material/menu';
+import { NotificationComponent } from './notification/notification.component';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   declarations: [
     AppComponent,
     StudentComponent,
     StudentsListComponent,
-    UploadComponent
+    UploadComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,
@@ -32,7 +36,9 @@ import {MatBadgeModule} from '@angular/material/badge';
     MatCardModule,
     MatToolbarModule,
     MatIconModule,
-    MatBadgeModule
+    MatBadgeModule,
+    MatMenuModule,
+    MatButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

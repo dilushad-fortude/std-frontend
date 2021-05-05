@@ -4,7 +4,7 @@
   <mat-toolbar style="padding: 0 30px;">
     <span>My App</span>
     <span class="example-spacer"></span>
-    <mat-icon matBadge="15" matBadgeColor="warn">home</mat-icon>
+    <app-notification (childToParent)="refreshStudentList($event)"></app-notification>
   </mat-toolbar>
 
 
