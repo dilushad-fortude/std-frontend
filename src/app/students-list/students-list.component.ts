@@ -39,9 +39,7 @@ export class StudentsListComponent implements OnInit {
 
   constructor(
     private renderer: Renderer2,
-    private readonly studentGQLService: GetAllStudentsQueryGQL,
-    private readonly updateStudentGQLService: UpdateStudentGQL,
-    private readonly deleteStudentGQLService: RemoveStudentGQL,
+    private readonly studentService: StudentService,
   ) { }
 
   public ngOnInit(): void {
@@ -55,14 +53,18 @@ export class StudentsListComponent implements OnInit {
   }
 
   public loadStudentList() {
-    this.studentGQLService.fetch().pipe(map(res => this.mapStudent(res.data.findAllStudents))).subscribe(students => {
-      // this.view = students;
-      console.log("stds", students);
+    this.studentService.getAllStudents().subscribe(students => {
       this.view = {
         data: students.slice(this.skip, this.skip + this.pageSize),
         total: students.length
       }
     });
+  }
+  
+  public deleteStudent(id) {
+    this.studentService.deleteStudent(id).subscribe(data => {
+      this.loadStudentList();
+    })
   }
 
   public pageChange(event: PageChangeEvent): void {
@@ -70,26 +72,9 @@ export class StudentsListComponent implements OnInit {
     this.loadStudentList();
   }
 
-  private mapStudent(students) {
-    let stdList = [];
-    for (let x = 0; x < students.length; x++) {
-      var ageDifMs = Date.now() - new Date(students[x]['dob']).getTime();
-      var ageDate = new Date(ageDifMs);
-      var age = Math.abs(ageDate.getUTCFullYear() - 1970);
-      students[x]['age'] = age;
-      stdList.push(students[x]);
-    }
-    return stdList;
-  }
 
   public ngOnDestroy(): void {
     this.docClickSubscription();
-  }
-
-  public deleteStudent(id) {
-    this.deleteStudentGQLService.mutate({ id: "" + id }).subscribe(data => {
-      this.loadStudentList();
-    })
   }
 
   public addHandler(event): void {
@@ -114,13 +99,12 @@ export class StudentsListComponent implements OnInit {
   private saveCurrent(): void {
     if (this.formGroup) {
       if (!this.isNew) {
-        console.log(this.formGroup.value);
-        this.updateStudentGQLService.mutate({
-          name: this.formGroup.value['name'],
-          dob: this.formGroup.value['dob'],
-          email: this.formGroup.value['email'],
-          id: "" + this.formGroup.value['id']
-        }).subscribe(data => {
+        this.studentService.updateStudent(
+          "" + this.formGroup.value['id'],
+          this.formGroup.value['name'],
+          this.formGroup.value['dob'],
+          this.formGroup.value['email']
+        ).subscribe(data => {
           this.loadStudentList();
         });
       }

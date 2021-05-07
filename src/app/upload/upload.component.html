@@ -3,5 +3,6 @@
 <kendo-upload
     name="stdUpload"
     [saveUrl]="uploadSaveUrl"
-    [removeUrl]="uploadRemoveUrl">
+    [removeUrl]="uploadRemoveUrl"
+    (upload)="uploadEventHandler($event)">
 </kendo-upload>

@@ -35,3 +35,7 @@ mutation updateStudent($id: String!, $name: String!, $email: String!, $dob: Stri
     id
   }
 }
+
+scalar Upload
+
+mutation uploadExcelFile($file: Upload!) { uploadFile(file: $file) }

@@ -25,14 +25,12 @@ export class NotificationComponent implements OnInit {
     (async () => {
 
       let myChannel = this.socket.channel('notification');
-      console.log(myChannel);
     
       // Can subscribe to the channel later as a separate step.
       myChannel.subscribe();
       await myChannel.listener('subscribe').once();
       // myChannel.state is now 'subscribed'.
       for await (let data of myChannel) {
-        console.log("data from channe",data);
         this.notificationList.push(JSON.parse(data));
       }
     })();

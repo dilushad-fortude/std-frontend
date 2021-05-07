@@ -12,6 +12,8 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The `Upload` scalar type represents a file upload. */
+  Upload: any;
 };
 
 
@@ -21,6 +23,7 @@ export type Mutation = {
   createStudent: Student;
   updateStudent: UpdateStudentDto;
   deleteStudent: Student;
+  uploadFile: Scalars['Boolean'];
 };
 
 
@@ -37,6 +40,11 @@ export type MutationUpdateStudentArgs = {
 
 export type MutationDeleteStudentArgs = {
   id: Scalars['String'];
+};
+
+
+export type MutationUploadFileArgs = {
+  file: Scalars['Upload'];
 };
 
 export type Query = {
@@ -68,6 +76,7 @@ export type UpdateStudentDto = {
   __typename?: 'UpdateStudentDto';
   id: Scalars['Int'];
 };
+
 
 export type GetOneStudentQueryVariables = Exact<{
   id: Scalars['String'];
@@ -128,6 +137,16 @@ export type UpdateStudentMutation = (
       & Pick<UpdateStudentDto, 'id'>
     )
   }
+);
+
+export type UploadExcelFileMutationVariables = Exact<{
+  file: Scalars['Upload'];
+}>;
+
+
+export type UploadExcelFileMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'uploadFile'>
 );
 
 export const GetOneStudentDocument = gql`
@@ -203,6 +222,22 @@ export const UpdateStudentDocument = gql`
 })
 export class UpdateStudentGQL extends Apollo.Mutation<UpdateStudentMutation, UpdateStudentMutationVariables> {
   document = UpdateStudentDocument;
+
+  constructor(apollo: Apollo.Apollo) {
+    super(apollo);
+  }
+}
+export const UploadExcelFileDocument = gql`
+    mutation uploadExcelFile($file: Upload!) {
+  uploadFile(file: $file)
+}
+    `;
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UploadExcelFileGQL extends Apollo.Mutation<UploadExcelFileMutation, UploadExcelFileMutationVariables> {
+  document = UploadExcelFileDocument;
 
   constructor(apollo: Apollo.Apollo) {
     super(apollo);
