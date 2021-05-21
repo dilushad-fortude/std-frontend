@@ -1,6 +1,6 @@
 # Where to get schema data
 schema:
-  - http://localhost:3000/graphql
+  - http://localhost:8879/graphql
 # The client side queries to turn into services
 documents:
   - src/**/*.graphql

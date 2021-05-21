@@ -2,6 +2,7 @@ import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { GetAllStudentsQueryGQL, RemoveStudentGQL, UpdateStudentGQL } from './services/studentGraphql.service';
 import { Observable } from 'rxjs';
+import { Apollo, gql } from 'apollo-angular';
 
 
 @Injectable({
@@ -10,23 +11,50 @@ import { Observable } from 'rxjs';
 export class StudentService {
 
   constructor(
-    private readonly studentGQLService: GetAllStudentsQueryGQL,
     private readonly updateStudentGQLService: UpdateStudentGQL,
-    private readonly deleteStudentGQLService: RemoveStudentGQL,
+    private apollo: Apollo,
   ) { }
 
-  getAllStudents(): Observable<any[]> {
-    return this.studentGQLService.fetch().pipe(map(res => this.mapStudent(res.data.findAllStudents)));
+  getAllStudents() {
+    return this.apollo.query<any>({
+      query: gql`
+          query GetAllStudentsQuery {
+            findAllStudents {
+              id
+              name
+              email
+              dob
+            }
+          }
+        `
+    }).toPromise()
+    .then(res => this.mapStudent(res.data.findAllStudents));
+    //return this.studentGQLService.fetch().pipe(map(res => this.mapStudent(res.data.findAllStudents)));
   }
 
   deleteStudent(id: number) {
-    return this.deleteStudentGQLService.mutate({ id: "" + id });
+    return this.apollo.query<any>({
+      query: gql`
+          mutation removeStudent {
+            deleteStudent(id: "${id}") {
+              id
+            }
+          }
+        `
+    }).toPromise();
+    //return this.deleteStudentGQLService.mutate({ id: "" + id });
   }
 
   updateStudent(id: string, name: string, dob: string, email: string) {
-    return this.updateStudentGQLService.mutate({
-        id: id, name: name, dob: dob, email: email
-      });
+    return this.apollo.query<any>({
+      query: gql`
+          mutation updateStudent {
+            updateStudent(input: {email: "${email}", dob: "${dob}", name:"${name}"}, id: "${id}") {
+              id
+            }
+          }
+        `
+    }).toPromise();
   }
 
   private mapStudent(students) {

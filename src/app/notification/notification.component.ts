@@ -1,5 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { create } from 'socketcluster-client';
+import { AGClientSocket, create } from 'socketcluster-client';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-notification',
@@ -9,29 +10,52 @@ import { create } from 'socketcluster-client';
 export class NotificationComponent implements OnInit {
 
   @Output() childToParent = new EventEmitter<any>();
-  
+
   constructor() { }
   private socket = null;
   public notificationList: Notification[] = new Array();
 
   ngOnInit(): void {
     this.socket = create({
-      hostname: 'localhost',
-      port: 8000
+      hostname: environment.socketHost,
+      port: environment.socketPort
     });
 
-    // this.socket.transmit('notification', JSON.stringify({action: 'from-frontend', count: 5}));
+    //this.socket.transmit('notification', JSON.stringify({action: 'from-frontend', connected: this.socket.id}));
 
     (async () => {
 
-      let myChannel = this.socket.channel('notification');
-    
-      // Can subscribe to the channel later as a separate step.
-      myChannel.subscribe();
-      await myChannel.listener('subscribe').once();
-      // myChannel.state is now 'subscribed'.
-      for await (let data of myChannel) {
-        this.notificationList.push(JSON.parse(data));
+      this.socket.listener("connect").once().then(() => {
+        console.log("transmiting frontend socket id to server", this.socket.id);
+        this.socket.transmit('front-end-connection', JSON.stringify({ action: 'from-frontend', socketClientId: this.socket.id }));
+      });
+
+
+      // this.socket.listener("raw").once().then(data => {
+      //   console.log("subscribe data from socket", data);
+      //   this.notificationList.push(JSON.parse(data.message));
+      // })
+
+
+      // let myChannel = this.socket.channel('notification');
+
+      // myChannel.subscribe();
+      // await myChannel.listener('subscribe').once();
+      // this.socket.transmit('notification', JSON.stringify({ action: 'from-frontend', connected: this.socket.id }));
+
+      // // myChannel.state is now 'subscribed'.
+      // for await (let data of myChannel) {
+      //   this.notificationList.push(JSON.parse(data));
+      //   console.log("this.socket.clientId updayed", this.socket.id);
+      // }
+    })();
+
+    (async () => {
+      let socketDataListner = this.socket.listener("raw");
+  
+      for await (let {message} of socketDataListner) {
+        console.log("subscribe data from socket", message);
+        this.notificationList.push(JSON.parse(message));
       }
     })();
   }
@@ -43,7 +67,7 @@ export class NotificationComponent implements OnInit {
 
 }
 
-export class Notification{
+export class Notification {
   action: string;
   count: number
 }

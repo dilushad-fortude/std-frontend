@@ -1,6 +1,4 @@
 import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { GetAllStudentsQueryGQL, RemoveStudentGQL, UpdateStudentGQL } from '../services/studentGraphql.service';
-import { map } from 'rxjs/operators';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { StudentService } from '../student.service';
 import { GridComponent, GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
@@ -53,18 +51,21 @@ export class StudentsListComponent implements OnInit {
   }
 
   public loadStudentList() {
-    this.studentService.getAllStudents().subscribe(students => {
+    this.studentService.getAllStudents().then(students => {
+      console.log("students",students);
       this.view = {
         data: students.slice(this.skip, this.skip + this.pageSize),
         total: students.length
       }
-    });
+    }).catch(e => console.log("error",e));
   }
-  
+
   public deleteStudent(id) {
-    this.studentService.deleteStudent(id).subscribe(data => {
+    if (!confirm("Are you sure to delete the student?")) return;
+
+    this.studentService.deleteStudent(id).then(data => {
       this.loadStudentList();
-    })
+    }).catch(e => alert("error occured"));
   }
 
   public pageChange(event: PageChangeEvent): void {
@@ -97,15 +98,22 @@ export class StudentsListComponent implements OnInit {
   }
 
   private saveCurrent(): void {
+
     if (this.formGroup) {
       if (!this.isNew) {
+        if (!confirm("Are you sure to update the student?")) {
+          this.closeEditor();
+          return;
+        }
         this.studentService.updateStudent(
           "" + this.formGroup.value['id'],
           this.formGroup.value['name'],
           this.formGroup.value['dob'],
           this.formGroup.value['email']
-        ).subscribe(data => {
+        ).then(data => {
           this.loadStudentList();
+        }).catch(e=> {
+          alert("Error occured!")
         });
       }
       this.closeEditor();

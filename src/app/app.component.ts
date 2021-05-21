@@ -9,10 +9,9 @@ import { StudentsListComponent } from './students-list/students-list.component';
 export class AppComponent {
   @ViewChild(StudentsListComponent) stdListComponent: StudentsListComponent;
 
-  title = 'std-frntend';
+  title = `std-frntend`;
 
   refreshStudentList(e){
-    console.log('toggle');
     this.stdListComponent.loadStudentList();
   }
 }
