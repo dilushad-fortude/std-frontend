@@ -11,7 +11,6 @@ import { Apollo, gql } from 'apollo-angular';
 export class StudentService {
 
   constructor(
-    private readonly updateStudentGQLService: UpdateStudentGQL,
     private apollo: Apollo,
   ) { }
 

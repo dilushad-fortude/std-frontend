@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { UploadEvent } from '@progress/kendo-angular-upload';
+import { Apollo, gql } from 'apollo-angular';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from 'src/environments/environment';
 import { Stream } from 'stream';
@@ -14,7 +15,8 @@ import { UploadExcelFileGQL } from '../services/studentGraphql.service';
 export class UploadComponent implements OnInit {
 
   constructor(
-    private readonly http: HttpClient
+    private readonly http: HttpClient,
+    private apollo: Apollo,
     ) { }
 
   gqlUrl: string = `${environment.graphqlHost}/graphql`;
@@ -39,6 +41,14 @@ export class UploadComponent implements OnInit {
       }
     }
 
+    // this.apollo.query<any>({
+    //   query: gql`
+    //       mutation uploadFile { uploadFile(file: ${file}) }
+    //     `
+    // }).toPromise().then(d=>{
+    //   console.log("form file upload",d);
+    // });
+
     var _map = { 
       file: ["variables.file"]
     }
@@ -49,6 +59,6 @@ export class UploadComponent implements OnInit {
     fd.append('file', file.rawFile, file.name)
 
     this.http.post(this.gqlUrl, fd).subscribe();
-    // this.fileUploadService.mutate({file:exFile}).subscribe(data=> console.log(data));
+    //this.fileUploadService.mutate({file:exFile}).subscribe(data=> console.log(data));
   }
 }
